@@ -142,18 +142,17 @@ function parsePnL(report: any): {
       const innerRows = row.Rows?.Row || [];
       const subs = extractSectionSummaries(innerRows, amountIdx);
 
-      if (/income/i.test(sectionName) && !/net\s+income/i.test(sectionName)) {
-        income = subs;
-        // Section summary for total
+      if (/income/i.test(sectionName) && !/net\s+(income|earnings|profit|operating)/i.test(sectionName) && !/net\s+other/i.test(sectionName)) {
+        income.push(...subs);
         if (row.Summary?.ColData) {
-          total_income = parseFloat(row.Summary.ColData[amountIdx]?.value || "0");
+          total_income += parseFloat(row.Summary.ColData[amountIdx]?.value || "0");
         }
       } else if (/expense/i.test(sectionName) || /cost of goods/i.test(sectionName)) {
-        expenses = subs;
+        expenses.push(...subs);
         if (row.Summary?.ColData) {
-          total_expenses = parseFloat(row.Summary.ColData[amountIdx]?.value || "0");
+          total_expenses += parseFloat(row.Summary.ColData[amountIdx]?.value || "0");
         }
-      } else if (/net\s+(income|earnings|profit)/i.test(sectionName)) {
+      } else if (/net\s+(income|earnings|profit)/i.test(sectionName) || /net\s+operating/i.test(sectionName)) {
         if (row.Summary?.ColData) {
           net_income = parseFloat(row.Summary.ColData[amountIdx]?.value || "0");
         }
