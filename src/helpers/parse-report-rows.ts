@@ -116,7 +116,7 @@ export function extractSectionSummaries(
 
   for (const row of rows) {
     if (row.type === "Section" && row.Summary) {
-      // Section with sub-items — use Summary total to avoid double-counting
+      // Case 1: Section with Summary — use total to avoid double-counting
       const category =
         row.Summary.ColData?.[0]?.value ||
         row.Header?.ColData?.[0]?.value ||
@@ -125,8 +125,11 @@ export function extractSectionSummaries(
       const rawAmount = row.Summary.ColData?.[amountColumnIndex]?.value;
       const amount = parseFloat(rawAmount || "0");
       results.push({ category, amount });
+    } else if (row.type === "Section" && !row.Summary && row.Rows?.Row) {
+      // Case 2: Section WITHOUT Summary — recurse into nested rows
+      results.push(...extractSectionSummaries(row.Rows.Row, amountColumnIndex));
     } else if (row.ColData && (!row.type || row.type === "Data")) {
-      // Leaf data row — single account with no sub-categories
+      // Case 3: Leaf data row — single account with no sub-categories
       const category = row.ColData[0]?.value || "Unknown";
       const rawAmount = row.ColData[amountColumnIndex]?.value;
       const amount = parseFloat(rawAmount || "0");
@@ -205,6 +208,7 @@ export function extractComparisonSummaries(
 
   for (const row of rows) {
     if (row.type === "Section" && row.Summary) {
+      // Case 1: Section with Summary — use total to avoid double-counting
       const category =
         row.Summary.ColData?.[0]?.value ||
         row.Header?.ColData?.[0]?.value ||
@@ -232,6 +236,22 @@ export function extractComparisonSummaries(
             ? Math.round(delta_percent * 100) / 100
             : null,
       });
+    } else if (row.type === "Section" && !row.Summary && row.Rows?.Row) {
+      // Case 2: Section WITHOUT Summary — recurse into nested rows
+      results.push(...extractComparisonSummaries(row.Rows.Row, currentColIndex, priorColIndex));
+    } else if (row.ColData && (!row.type || row.type === "Data")) {
+      // Case 3: Leaf data row
+      const category = row.ColData?.[0]?.value || "Unknown";
+      const current = parseFloat(row.ColData?.[currentColIndex]?.value || "0");
+      const comparison = parseFloat(row.ColData?.[priorColIndex]?.value || "0");
+      const delta = current - comparison;
+      const delta_percent =
+        comparison !== 0
+          ? Math.round((delta / Math.abs(comparison)) * 10000) / 100
+          : null;
+      if (category && (current !== 0 || comparison !== 0)) {
+        results.push({ category, current_amount: current, comparison_amount: comparison, delta, delta_percent });
+      }
     }
   }
 
