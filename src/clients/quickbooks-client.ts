@@ -227,7 +227,7 @@ class QuickbooksClient {
       this.realmId!, // Safe to use ! here as we checked above
       this.environment === 'sandbox', // use the sandbox?
       false, // debug?
-      null, // minor version
+      75, // minor version
       '2.0', // oauth version
       this.refreshToken
     );
