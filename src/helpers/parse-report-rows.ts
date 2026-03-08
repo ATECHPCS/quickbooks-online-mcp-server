@@ -99,14 +99,14 @@ export interface SectionSummary {
 }
 
 /**
- * Walk a Row array and extract one summary per top-level Section.
+ * Walk a Row array and extract one summary per top-level item.
  *
- * For each Section row that has a Summary, we extract:
- *   - category: from Summary.ColData[0].value, or Header.ColData[0].value,
- *     or the row's group field
- *   - amount: from Summary.ColData[amountColumnIndex].value parsed as float
+ * Handles both:
+ *   - Section rows (have Summary): uses Summary total to avoid double-counting
+ *   - Data rows (leaf accounts with no sub-categories): extracted directly
  *
- * Only Summary rows are used to avoid double-counting sub-categories.
+ * This ensures single-line expense/income categories (e.g., "Insurance $500")
+ * are captured alongside multi-line sections (e.g., "Advertising" with sub-items).
  */
 export function extractSectionSummaries(
   rows: QBORow[],
@@ -116,6 +116,7 @@ export function extractSectionSummaries(
 
   for (const row of rows) {
     if (row.type === "Section" && row.Summary) {
+      // Section with sub-items — use Summary total to avoid double-counting
       const category =
         row.Summary.ColData?.[0]?.value ||
         row.Header?.ColData?.[0]?.value ||
@@ -124,6 +125,14 @@ export function extractSectionSummaries(
       const rawAmount = row.Summary.ColData?.[amountColumnIndex]?.value;
       const amount = parseFloat(rawAmount || "0");
       results.push({ category, amount });
+    } else if (row.ColData && (!row.type || row.type === "Data")) {
+      // Leaf data row — single account with no sub-categories
+      const category = row.ColData[0]?.value || "Unknown";
+      const rawAmount = row.ColData[amountColumnIndex]?.value;
+      const amount = parseFloat(rawAmount || "0");
+      if (category && amount !== 0) {
+        results.push({ category, amount });
+      }
     }
   }
 
