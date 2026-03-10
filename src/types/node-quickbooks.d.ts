@@ -90,5 +90,20 @@ declare module 'node-quickbooks' {
     reportBalanceSheet(options: object, callback: (err: any, report: any) => void): void;
     reportGeneralLedgerDetail(options: object, callback: (err: any, report: any) => void): void;
     reportTaxSummary(options: object, callback: (err: any, report: any) => void): void;
+
+    // Attachable CRUD + Upload
+    upload(
+      filename: string,
+      contentType: string,
+      stream: NodeJS.ReadableStream,
+      entityType: string,
+      entityId: string | number,
+      callback: (err: any, attachable: any) => void
+    ): void;
+    createAttachable(attachable: object, callback: (err: any, attachable: any) => void): void;
+    getAttachable(id: string, callback: (err: any, attachable: any) => void): void;
+    updateAttachable(attachable: object, callback: (err: any, attachable: any) => void): void;
+    deleteAttachable(idOrEntity: any, callback: (err: any, response: any) => void): void;
+    findAttachables(criteria: object, callback: (err: any, attachables: any) => void): void;
   }
 }
