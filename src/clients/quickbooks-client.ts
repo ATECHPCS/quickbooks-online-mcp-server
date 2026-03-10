@@ -187,11 +187,17 @@ class QuickbooksClient {
       const authResponse = await this.oauthClient.refreshUsingToken(this.refreshToken);
       
       this.accessToken = authResponse.token.access_token;
-      
+
+      // Save the new refresh token (QBO invalidates the old one on each use)
+      if (authResponse.token.refresh_token) {
+        this.refreshToken = authResponse.token.refresh_token;
+        this.saveTokensToEnv();
+      }
+
       // Calculate expiry time
       const expiresIn = authResponse.token.expires_in || 3600; // Default to 1 hour
       this.accessTokenExpiry = new Date(Date.now() + expiresIn * 1000);
-      
+
       return {
         access_token: this.accessToken,
         expires_in: expiresIn,
