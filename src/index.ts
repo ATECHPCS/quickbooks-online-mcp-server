@@ -72,6 +72,9 @@ import { ReportBalanceSheetTool } from "./tools/report-balance-sheet.tool.js";
 import { ReportGeneralLedgerDetailTool } from "./tools/report-general-ledger-detail.tool.js";
 import { ReportTaxSummaryTool } from "./tools/report-tax-summary.tool.js";
 
+// Attachment tools
+import { UploadAttachmentTool } from "./tools/upload-attachment.tool.js";
+
 const main = async () => {
   // Create an MCP server
   const server = QuickbooksMCPServer.GetServer();
@@ -167,6 +170,9 @@ const main = async () => {
   RegisterTool(server, ReportBalanceSheetTool);
   RegisterTool(server, ReportGeneralLedgerDetailTool);
   RegisterTool(server, ReportTaxSummaryTool);
+
+  // Attachment
+  RegisterTool(server, UploadAttachmentTool);
 
   // Start receiving messages on stdin and sending messages on stdout
   const transport = new StdioServerTransport();
