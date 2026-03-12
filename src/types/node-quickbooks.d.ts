@@ -100,6 +100,13 @@ declare module 'node-quickbooks' {
       entityId: string | number,
       callback: (err: any, attachable: any) => void
     ): void;
+    // Upload without entity linking (callback as 4th arg)
+    upload(
+      filename: string,
+      contentType: string,
+      stream: NodeJS.ReadableStream,
+      callback: (err: any, attachable: any) => void
+    ): void;
     createAttachable(attachable: object, callback: (err: any, attachable: any) => void): void;
     getAttachable(id: string, callback: (err: any, attachable: any) => void): void;
     updateAttachable(attachable: object, callback: (err: any, attachable: any) => void): void;

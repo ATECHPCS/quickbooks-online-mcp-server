@@ -47,23 +47,36 @@ export async function uploadQuickbooksAttachment(
   entityId: string
 ): Promise<UploadAttachmentResponse<any>> {
   try {
-    // a. Resolve receipts directory
-    const receiptsDir =
-      process.env.RECEIPTS_DIR ||
+    // a. Resolve allowed upload directories (multi-directory path containment)
+    const allowedDirsRaw =
+      process.env.ALLOWED_UPLOAD_DIRS ||
+      process.env.RECEIPTS_DIR || // backwards compat
       path.join(
         process.env.HOME || "~",
         ".nanobot-stefany-home",
         ".receipts"
       );
 
-    if (!fs.existsSync(receiptsDir)) {
+    const allowedDirs = allowedDirsRaw
+      .split(",")
+      .map((d) => d.trim())
+      .filter(Boolean);
+
+    const resolvedAllowedDirs: string[] = [];
+    for (const dir of allowedDirs) {
+      try {
+        resolvedAllowedDirs.push(fs.realpathSync(dir));
+      } catch {
+        // Directory doesn't exist yet -- skip
+      }
+    }
+
+    if (resolvedAllowedDirs.length === 0) {
       return {
         result: null,
         isError: true,
         error_type: "PATH_NOT_ALLOWED",
-        error:
-          "RECEIPTS_DIR is not configured or directory does not exist: " +
-          receiptsDir,
+        error: "No valid upload directories configured",
       };
     }
 
@@ -80,17 +93,18 @@ export async function uploadQuickbooksAttachment(
       };
     }
 
-    // c. Path containment check (symlink-safe)
-    const resolvedReceiptsDir = fs.realpathSync(receiptsDir);
-    if (
-      resolvedFilePath !== resolvedReceiptsDir &&
-      !resolvedFilePath.startsWith(resolvedReceiptsDir + path.sep)
-    ) {
+    // c. Path containment check (symlink-safe, multi-directory)
+    const isAllowed = resolvedAllowedDirs.some(
+      (dir) =>
+        resolvedFilePath === dir ||
+        resolvedFilePath.startsWith(dir + path.sep)
+    );
+    if (!isAllowed) {
       return {
         result: null,
         isError: true,
         error_type: "PATH_NOT_ALLOWED",
-        error: "File must be within the receipts directory",
+        error: "File must be within an allowed upload directory",
       };
     }
 
@@ -152,18 +166,20 @@ export async function uploadQuickbooksAttachment(
       throw error;
     });
 
-    // i. Upload
+    // i. Upload — work around node-quickbooks#245: the library's upload()
+    //    sends a minimal updateAttachable that wipes FileName/ContentType.
+    //    Fix: call upload WITHOUT entityType/entityId (skips the buggy update),
+    //    then do our own updateAttachable with the full attachable object.
+    //    See: https://github.com/mcohen01/node-quickbooks/issues/245
     const filename = path.basename(resolvedFilePath);
     const contentType = MIME_TYPES[ext];
-    const stream = fs.createReadStream(resolvedFilePath);
 
     return new Promise((resolve) => {
+      // Step 1: Upload file only (no entity linking — pass callback as 4th arg)
       quickbooks.upload(
         filename,
         contentType,
-        stream,
-        entityType,
-        entityId,
+        fs.createReadStream(resolvedFilePath),
         (err: any, attachable: any) => {
           if (err) {
             resolve({
@@ -172,20 +188,47 @@ export async function uploadQuickbooksAttachment(
               error_type: "QBO_API_ERROR",
               error: formatError(err),
             });
-          } else {
-            resolve({
-              result: {
-                attachable_id:
-                  attachable.Id ||
-                  attachable.AttachableResponse?.Id,
-                filename,
-                entity_type: entityType,
-                entity_id: entityId,
-              },
-              isError: false,
-              error: null,
-            });
+            return;
           }
+
+          // Step 2: Link to entity — spread ALL fields from upload response
+          // so QBO's full-update doesn't wipe FileName/ContentType/Size
+          quickbooks.updateAttachable(
+            {
+              ...attachable,
+              FileName: attachable.FileName || filename,
+              ContentType: attachable.ContentType || contentType,
+              AttachableRef: [
+                {
+                  EntityRef: {
+                    type: entityType,
+                    value: entityId + "",
+                  },
+                },
+              ],
+            },
+            (updateErr: any, updated: any) => {
+              if (updateErr) {
+                resolve({
+                  result: null,
+                  isError: true,
+                  error_type: "QBO_API_ERROR",
+                  error: `File uploaded but entity linking failed: ${formatError(updateErr)}`,
+                });
+              } else {
+                resolve({
+                  result: {
+                    attachable_id: updated.Id || attachable.Id,
+                    filename,
+                    entity_type: entityType,
+                    entity_id: entityId,
+                  },
+                  isError: false,
+                  error: null,
+                });
+              }
+            }
+          );
         }
       );
     });
