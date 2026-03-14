@@ -85,6 +85,16 @@ declare module 'node-quickbooks' {
     updatePurchase(purchaseData: object, callback: (err: any, purchase: any) => void): void;
     deletePurchase(idOrEntity: any, callback: (err: any, response: any) => void): void;
 
+    // Deposit CRUD
+    findDeposits(options: object, callback: (err: any, deposits: any) => void): void;
+    getDeposit(id: string, callback: (err: any, deposit: any) => void): void;
+    updateDeposit(depositData: object, callback: (err: any, deposit: any) => void): void;
+
+    // Sales Receipt CRUD
+    findSalesReceipts(options: object, callback: (err: any, salesReceipts: any) => void): void;
+    getSalesReceipt(id: string, callback: (err: any, salesReceipt: any) => void): void;
+    updateSalesReceipt(srData: object, callback: (err: any, salesReceipt: any) => void): void;
+
     // Report methods
     reportProfitAndLoss(options: object, callback: (err: any, report: any) => void): void;
     reportBalanceSheet(options: object, callback: (err: any, report: any) => void): void;

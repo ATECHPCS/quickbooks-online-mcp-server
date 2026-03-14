@@ -66,6 +66,14 @@ import { UpdatePurchaseTool } from "./tools/update-purchase.tool.js";
 import { DeletePurchaseTool } from "./tools/delete-purchase.tool.js";
 import { SearchPurchasesTool } from "./tools/search-purchases.tool.js";
 
+// Income entity tools (Deposit + SalesReceipt)
+import { GetDepositTool } from "./tools/get-deposit.tool.js";
+import { UpdateDepositTool } from "./tools/update-deposit.tool.js";
+import { SearchDepositsTool } from "./tools/search-deposits.tool.js";
+import { GetSalesReceiptTool } from "./tools/get-sales-receipt.tool.js";
+import { UpdateSalesReceiptTool } from "./tools/update-sales-receipt.tool.js";
+import { SearchSalesReceiptsTool } from "./tools/search-sales-receipts.tool.js";
+
 // Report tools
 import { ReportProfitAndLossTool } from "./tools/report-profit-and-loss.tool.js";
 import { ReportBalanceSheetTool } from "./tools/report-balance-sheet.tool.js";
@@ -164,6 +172,14 @@ const main = async () => {
   RegisterTool(server, UpdatePurchaseTool);
   RegisterTool(server, DeletePurchaseTool);
   RegisterTool(server, SearchPurchasesTool);
+
+  // Income entity tools (Deposit + SalesReceipt)
+  RegisterTool(server, GetDepositTool);
+  RegisterTool(server, UpdateDepositTool);
+  RegisterTool(server, SearchDepositsTool);
+  RegisterTool(server, GetSalesReceiptTool);
+  RegisterTool(server, UpdateSalesReceiptTool);
+  RegisterTool(server, SearchSalesReceiptsTool);
 
   // Report tools
   RegisterTool(server, ReportProfitAndLossTool);
