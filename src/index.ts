@@ -80,6 +80,11 @@ import { ReportBalanceSheetTool } from "./tools/report-balance-sheet.tool.js";
 import { ReportGeneralLedgerDetailTool } from "./tools/report-general-ledger-detail.tool.js";
 import { ReportTaxSummaryTool } from "./tools/report-tax-summary.tool.js";
 
+// Florida sales tax tools
+import { ListTaxRatesTool } from "./tools/list-tax-rates.tool.js";
+import { ReportSalesTaxLiabilityTool } from "./tools/report-sales-tax-liability.tool.js";
+import { PrepareDr15Tool } from "./tools/prepare-dr15.tool.js";
+
 // Attachment tools
 import { UploadAttachmentTool } from "./tools/upload-attachment.tool.js";
 
@@ -186,6 +191,11 @@ const main = async () => {
   RegisterTool(server, ReportBalanceSheetTool);
   RegisterTool(server, ReportGeneralLedgerDetailTool);
   RegisterTool(server, ReportTaxSummaryTool);
+
+  // Florida sales tax tools
+  RegisterTool(server, ListTaxRatesTool);
+  RegisterTool(server, ReportSalesTaxLiabilityTool);
+  RegisterTool(server, PrepareDr15Tool);
 
   // Attachment
   RegisterTool(server, UploadAttachmentTool);
