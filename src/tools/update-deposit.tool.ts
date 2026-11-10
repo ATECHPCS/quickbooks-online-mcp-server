@@ -1,15 +1,14 @@
 import { updateQuickbooksDeposit } from "../handlers/update-quickbooks-deposit.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "update_deposit";
 const toolDescription = "Update a deposit in QuickBooks Online.";
 
 // Define the expected input schema for updating a deposit
-const toolSchema = z.object({
-  deposit: z.any(),
-});
+const toolSchema = entityParams("deposit");
 
 type ToolParams = z.infer<typeof toolSchema>;
 

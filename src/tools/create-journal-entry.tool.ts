@@ -1,15 +1,14 @@
 import { createQuickbooksJournalEntry } from "../handlers/create-quickbooks-journal-entry.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "create_journal_entry";
 const toolDescription = "Create a journal entry in QuickBooks Online.";
 
 // Define the expected input schema for creating a journal entry
-const toolSchema = z.object({
-  journalEntry: z.any(),
-});
+const toolSchema = entityParams("journalEntry");
 
 type ToolParams = z.infer<typeof toolSchema>;
 

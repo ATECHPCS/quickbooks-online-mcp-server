@@ -1,15 +1,14 @@
 import { updateQuickbooksSalesReceipt } from "../handlers/update-quickbooks-sales-receipt.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "update_sales_receipt";
 const toolDescription = "Update a sales receipt in QuickBooks Online.";
 
 // Define the expected input schema for updating a sales receipt
-const toolSchema = z.object({
-  sales_receipt: z.any(),
-});
+const toolSchema = entityParams("sales_receipt");
 
 type ToolParams = z.infer<typeof toolSchema>;
 

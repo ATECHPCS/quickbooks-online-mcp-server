@@ -1,15 +1,14 @@
 import { updateQuickbooksPurchase } from "../handlers/update-quickbooks-purchase.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "update_purchase";
 const toolDescription = "Update a purchase in QuickBooks Online.";
 
 // Define the expected input schema for updating a purchase
-const toolSchema = z.object({
-  purchase: z.any(),
-});
+const toolSchema = entityParams("purchase");
 
 type ToolParams = z.infer<typeof toolSchema>;
 

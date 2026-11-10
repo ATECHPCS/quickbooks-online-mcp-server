@@ -1,15 +1,14 @@
 import { createQuickbooksBillPayment } from "../handlers/create-quickbooks-bill-payment.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "create_bill_payment";
 const toolDescription = "Create a bill payment in QuickBooks Online.";
 
 // Define the expected input schema for creating a bill payment
-const toolSchema = z.object({
-  billPayment: z.any(),
-});
+const toolSchema = entityParams("billPayment");
 
 type ToolParams = z.infer<typeof toolSchema>;
 

@@ -1,15 +1,14 @@
 import { createQuickbooksEmployee } from "../handlers/create-quickbooks-employee.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "create_employee";
 const toolDescription = "Create an employee in QuickBooks Online.";
 
 // Define the expected input schema for creating an employee
-const toolSchema = z.object({
-  employee: z.any(),
-});
+const toolSchema = entityParams("employee");
 
 type ToolParams = z.infer<typeof toolSchema>;
 
