@@ -1,10 +1,11 @@
 import { updateQuickbooksCustomer } from "../handlers/update-quickbooks-customer.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 const toolName = "update_customer";
 const toolDescription = "Update an existing customer in QuickBooks Online.";
-const toolSchema = z.object({ customer: z.any() });
+const toolSchema = entityParams("customer");
 
 type ToolParams = z.infer<typeof toolSchema>;
 

@@ -1,15 +1,14 @@
 import { updateQuickbooksJournalEntry } from "../handlers/update-quickbooks-journal-entry.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "update_journal_entry";
 const toolDescription = "Update a journal entry in QuickBooks Online.";
 
 // Define the expected input schema for updating a journal entry
-const toolSchema = z.object({
-  journalEntry: z.any(),
-});
+const toolSchema = entityParams("journalEntry");
 
 type ToolParams = z.infer<typeof toolSchema>;
 

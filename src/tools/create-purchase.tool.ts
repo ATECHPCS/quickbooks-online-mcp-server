@@ -1,15 +1,14 @@
 import { createQuickbooksPurchase } from "../handlers/create-quickbooks-purchase.handler.js";
 import { ToolDefinition } from "../types/tool-definition.js";
 import { z } from "zod";
+import { entityParams } from "../helpers/entity-params.js";
 
 // Define the tool metadata
 const toolName = "create_purchase";
 const toolDescription = "Create a purchase in QuickBooks Online.";
 
 // Define the expected input schema for creating a purchase
-const toolSchema = z.object({
-  purchase: z.any(),
-});
+const toolSchema = entityParams("purchase");
 
 type ToolParams = z.infer<typeof toolSchema>;
 
